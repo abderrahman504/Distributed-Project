@@ -8,13 +8,23 @@ public class Server extends RemoteObject
 {
 	
 	public static void main(String[] args) {
-		RemoteObject obj = new RemoteObject();
+
 		
 		try{
-			RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(obj, 0);
+			//create an instance of the remote object to be invoked
+			RemoteObject obj = new RemoteObject();
 
-			Registry registry = LocateRegistry.getRegistry();
+//			no need for the stub, the remote object instance suffices
+//			RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(obj, 0);
+
+			Registry registry = LocateRegistry.createRegistry(1099);
+
+			Scanner sc = new Scanner(System.in);
+			obj.loadInitialGraph(sc);
+
 			registry.bind("Graph Server", obj);
+
+
 			System.out.println("Server ready");
 			
 		}
