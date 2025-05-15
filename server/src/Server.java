@@ -8,8 +8,13 @@ public class Server extends RemoteObject
 {
 	
 	public static void main(String[] args) {
+		System.err.println("Server Started.");
+
 		RemoteObject obj = new RemoteObject();
-		
+
+		// Read the initial graph from args[1] and call obj.setGraph().
+
+
 		try{
 			RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(obj, 0);
 
