@@ -4,7 +4,7 @@ import java.util.HashSet;
 public class RemoteObject implements RemoteInterface 
 {
 	
-	HashMap<Integer, HashSet<Integer>> graph; 
+	private HashMap<Integer, HashSet<Integer>> graph; 
 	
 
 	public void setGraph(HashMap<Integer, HashSet<Integer>> graph){
