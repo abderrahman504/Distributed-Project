@@ -4,16 +4,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 
-public class RemoteObject implements RemoteInterface 
+public class RemoteObject extends GraphOperator implements RemoteInterface 
 {
 	
-	private HashMap<Integer, HashSet<Integer>> graph; 
-	
 
-	public void setGraph(HashMap<Integer, HashSet<Integer>> graph){
-		this.graph = graph;
-	}
-
+	@Override
 	public void processBatch(String batch)
 	{
 		Scanner scn = new Scanner(batch);
@@ -48,7 +43,7 @@ public class RemoteObject implements RemoteInterface
 		List<Thread> threads = new ArrayList<>(threadJobs.size()); 
 		for (List<GraphRequest> job : threadJobs){
 			// Create thread and pass graph copy and job.
-			HashMap<Integer, HashSet<Integer>> copy = deepCopyGraph();
+			HashMap<Integer, HashSet<Integer>> copy = super.deepCopyGraph();
 			Thread th = new Thread(new ThreadJob(copy, job));
 			th.start();
 			threads.add(th);
@@ -75,32 +70,6 @@ public class RemoteObject implements RemoteInterface
 		
 		// Whatever else we need to do now. Logs??
 		
-	}
-	
-	private HashMap<Integer, HashSet<Integer>> deepCopyGraph() {
-		HashMap<Integer, HashSet<Integer>> copy = new HashMap<>();
-		for (Integer key : graph.keySet()) {
-			// Create a new HashSet for each key to ensure deep copy
-			copy.put(key, new HashSet<>(graph.get(key)));
-		}
-		return copy;
-	}
-
-	private static void addEdge(HashMap<Integer, HashSet<Integer>> graph, int from, int to)
-	{
-		if(!graph.containsKey(from)) graph.put(from, new HashSet<>());
-		if(!graph.containsKey(to)) graph.put(from, new HashSet<>());
-		graph.get(from).add(to);
-	}
-	
-	private static void deleteEdge(HashMap<Integer, HashSet<Integer>> graph, int from, int to)
-	{
-		if(graph.containsKey(from)) graph.get(from).remove(to);
-	}
-
-	private static void findPath(HashMap<Integer, HashSet<Integer>> graph, int from, int to)
-	{
-		// implement later
 	}
 	
 	
