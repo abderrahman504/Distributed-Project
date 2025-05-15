@@ -40,6 +40,7 @@ public class Server extends RemoteObject
 				graph.get(from).add(to);
 			}
 			obj.setGraph(graph);
+			scn.close();
 		} catch (FileNotFoundException e){
 			System.err.println(e.toString());
 			return;
