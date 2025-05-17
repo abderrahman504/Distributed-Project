@@ -5,5 +5,5 @@ import java.rmi.RemoteException;
 public interface RemoteInterface extends Remote
 {
 
-	void processBatch(String batch) throws RemoteException;
+	String processBatch(int clientId, String batch) throws RemoteException;
 } 
