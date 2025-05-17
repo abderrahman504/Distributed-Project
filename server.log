@@ -1,0 +1,12 @@
+May 16, 2025 11:51:49 AM server.GraphServer initializeGraphFromFile
+INFO: Graph initialized from file with 5 edges
+May 16, 2025 11:51:54 AM server.GraphServer processBatch
+INFO: Processed batch of 5 operations in 1ms. Average processing time: 1ms
+May 16, 2025 11:51:57 AM server.GraphServer processBatch
+INFO: Processed batch of 5 operations in 0ms. Average processing time: 0ms
+May 16, 2025 11:52:05 AM server.GraphServer processBatch
+INFO: Processed batch of 5 operations in 1ms. Average processing time: 0ms
+May 16, 2025 11:52:14 AM server.GraphServer processBatch
+INFO: Processed batch of 5 operations in 1ms. Average processing time: 0ms
+May 16, 2025 11:52:23 AM server.GraphServer processBatch
+INFO: Processed batch of 5 operations in 0ms. Average processing time: 0ms
