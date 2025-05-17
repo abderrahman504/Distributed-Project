@@ -18,7 +18,7 @@ public class Client
     public static void main(String[] args)
 	{
 		if (args.length != 1){
-			System.err.println("Need to specify client id");
+			System.err.println("Usage : java Client <client id>");
 			return;
 		}
 		clientId = Integer.parseInt(args[0]);
