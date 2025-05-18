@@ -71,7 +71,8 @@ public class RemoteObject extends GraphOperator implements RemoteInterface
 			return res;
 		}
 		catch (Exception e){
-			logger.severe("Exception: " + e.getMessage());
+			logger.severe("Exception: " + e.getMessage() +"\n");
+			e.printStackTrace();
 			throw e;
 		}
 	}
