@@ -21,8 +21,8 @@ public class Client
 		String usage = "Usage : java Client <client id> <Use concurrent> <Option>\n" + 
 		"Client id | A unique integer id for each client.\n" +
 		"Use concurrent | Set to true to use concurrent method, and to false to use sequential method.\n" + 
-		"Option | {-read} for reading the batch from standard input. {-random <graph size> <batch size> <write ratio>} to generate random batches.";
-		if (args.length != 3 && args.length != 6){
+		"Option | {-read} for reading the batch from standard input. {-random <graph size> <batch size> <write ratio> <sleep (ms)>} to generate random batches. ";
+		if (args.length != 3 && args.length != 7){
 			//System.err.println("Usage : java Client <client id> <true -> concurrent. false -> sequential> <true -> random batches. false -> ask for batches>");
 			System.err.println(usage);
 			return;
@@ -32,16 +32,18 @@ public class Client
 		boolean random_batches = false;
 		int graph_size = 0, batch_size = 0;
 		double write_ratio = 0;
+		int sleep_time = 0;
 		
 		// Reading the third argument
 		if(args[2].equals("-read") && args.length == 3){
 			random_batches = false;
 		}
-		else if (args[2].equals("-random") && args.length == 6){
+		else if (args[2].equals("-random") && args.length == 7){
 			random_batches = true;
 			graph_size = Integer.parseInt(args[3]);
 			batch_size = Integer.parseInt(args[4]);
 			write_ratio = Double.parseDouble(args[5]);
+			sleep_time = Integer.parseInt(args[6]);
 		}
 		else{
 			System.err.println(usage);
@@ -89,9 +91,10 @@ public class Client
 					logger.severe("Remote exception: " + e.getMessage());
 				}
 				
-				int sleep_duration = (Math.abs(random.nextInt()) + 1000) % 10_000; // sleep for 1-10 seconds
-				System.out.println("Sleeping for " + sleep_duration + " ms");
-				Thread.sleep(sleep_duration);
+				if (random_batches){
+					System.out.println("Sleeping for " + sleep_time + " ms");
+					Thread.sleep(sleep_time);
+				}
 			}
 
 		}
