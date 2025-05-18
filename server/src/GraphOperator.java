@@ -30,7 +30,7 @@ public class GraphOperator {
 	protected static void addEdge(Map<Integer, Set<Integer>> graph, int from, int to)
 	{
 		if(!graph.containsKey(from)) graph.put(from, new HashSet<>());
-		if(!graph.containsKey(to)) graph.put(from, new HashSet<>());
+		if(!graph.containsKey(to)) graph.put(to, new HashSet<>());
 		graph.get(from).add(to);
 	}
 	
@@ -41,6 +41,7 @@ public class GraphOperator {
 
 
 	protected static int findPath(Map<Integer, Set<Integer>> graph, int from, int to) {
+		if (!graph.containsKey(from) || !graph.containsKey(to)) return -1;
 		if (from == to) {
 			//System.out.println("Shortest path: " + from);
 			return 0;
