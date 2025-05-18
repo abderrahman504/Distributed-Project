@@ -20,8 +20,8 @@ public class Client
 	{
 		String usage = "Usage : java Client <client id> <Use concurrent> <Option>\n" + 
 		"Client id | A unique integer id for each client.\n" +
-		"Use concurrent | Set to true to use concurrent method, and to false to use sequential method." + 
-		"Option | {-read} for reading the batch from standard input. {-random <graph size> <batch size> <write ratio>} to geenrate random batches.";
+		"Use concurrent | Set to true to use concurrent method, and to false to use sequential method.\n" + 
+		"Option | {-read} for reading the batch from standard input. {-random <graph size> <batch size> <write ratio>} to generate random batches.";
 		if (args.length != 3 && args.length != 6){
 			//System.err.println("Usage : java Client <client id> <true -> concurrent. false -> sequential> <true -> random batches. false -> ask for batches>");
 			System.err.println(usage);
