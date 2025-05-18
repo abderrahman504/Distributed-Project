@@ -18,15 +18,35 @@ public class Client
 
     public static void main(String[] args)
 	{
-		if (args.length != 3){
-			System.err.println("Usage : java Client <client id> <true -> concurrent. false -> sequential> <true -> random batches. false -> ask for batches>");
-
+		String usage = "Usage : java Client <client id> <Use concurrent> <Option>\n" + 
+		"Client id | A unique integer id for each client.\n" +
+		"Use concurrent | Set to true to use concurrent method, and to false to use sequential method." + 
+		"Option | {-read} for reading the batch from standard input. {-random <graph size> <batch size> <write ratio>} to geenrate random batches.";
+		if (args.length != 3 && args.length != 6){
+			//System.err.println("Usage : java Client <client id> <true -> concurrent. false -> sequential> <true -> random batches. false -> ask for batches>");
+			System.err.println(usage);
 			return;
 		}
 		clientId = Integer.parseInt(args[0]);
 		boolean use_concurrent = Boolean.parseBoolean(args[1]);
-		boolean random_batches = Boolean.parseBoolean(args[2]);
+		boolean random_batches = false;
+		int graph_size = 0, batch_size = 0;
+		double write_ratio = 0;
 		
+		// Reading the third argument
+		if(args[2].equals("-read") && args.length == 3){
+			random_batches = false;
+		}
+		else if (args[2].equals("-random") && args.length == 6){
+			random_batches = true;
+			graph_size = Integer.parseInt(args[3]);
+			batch_size = Integer.parseInt(args[4]);
+			write_ratio = Double.parseDouble(args[5]);
+		}
+		else{
+			System.err.println(usage);
+			return;	
+		}
 		
 
 		setupLogger();
@@ -38,7 +58,9 @@ public class Client
 	
 			
 			while (true){
-				List<String> batch = generateBatch(5, 5, 0.8);
+				List<String> batch;
+				if (random_batches) batch = generateBatch(graph_size, batch_size, write_ratio);
+				else batch = readBatch();
 				StringBuilder completeBatch = new StringBuilder();
 				for (String str : batch){
 					completeBatch.append(str);
