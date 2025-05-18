@@ -10,16 +10,25 @@ public class RemoteObject extends GraphOperator implements RemoteInterface
 {
 	public Logger logger;
 
-
 	@Override
-	public String processBatch(int clientId, String batch)
+	public String sequentialProcessBatch(int clientId, String batch)
 	{
-		System.out.println("Processing...");
+		return process(clientId, batch, false);
+	}
+	
+	@Override
+	public String concurrentProcessBatch(int clientId, String batch)
+	{
+		return process(clientId, batch, true);
+	}
+	
+	private String process(int clientId, String batch, boolean concurrent)
+	{
 		try
 		{
-
+	
 			long t_start = System.currentTimeMillis();
-			logger.info("Client " + clientId + "\nBatch :\n" + batch);
+			logger.info((concurrent ? "Concurrent" : "Sequential" )+ " - Client " + clientId + "\nBatch :\n" + batch);
 			Scanner scn = new Scanner(batch);
 			List<GraphRequest> batchList = new ArrayList<>(); // A list of requests in this batch.
 			int queryCount = 0;
@@ -38,22 +47,24 @@ public class RemoteObject extends GraphOperator implements RemoteInterface
 			
 			// Create a job list for each Q type request to dispatch to a thread.
 			List<List<GraphRequest>> threadJobs = new ArrayList<>();
-			for(int i=0; i<queryCount; i++) threadJobs.add(new ArrayList<>());
-	
-			int fullJobs = 0;
-			for (int i=0; i<batchList.size(); i++){
-				// Add this request to each thread job that requires it
-				for (int j=fullJobs; j<threadJobs.size(); j++){
-					if (batchList.get(i).type == 'Q'){
-						threadJobs.get(fullJobs).add(batchList.get(i).clone());
-						fullJobs++;
-						break;
+			if (concurrent){
+				for(int i=0; i<queryCount; i++) threadJobs.add(new ArrayList<>());
+				int fullJobs = 0;
+				for (int i=0; i<batchList.size(); i++){
+					// Add this request to each thread job that requires it
+					for (int j=fullJobs; j<threadJobs.size(); j++){
+						if (batchList.get(i).type == 'Q'){
+							threadJobs.get(fullJobs).add(batchList.get(i).clone());
+							fullJobs++;
+							break;
+						}
+						threadJobs.get(j).add(batchList.get(i).clone());
 					}
-					threadJobs.get(j).add(batchList.get(i).clone());
 				}
 			}
+			
 	
-			String res = startJob(threadJobs, batchList);
+			String res = startJob(threadJobs, batchList, concurrent);
 			long t_end = System.currentTimeMillis();
 			long pt = t_end - t_start;
 			logger.info("Processing time " + pt + " ms\n" + res);
@@ -64,8 +75,9 @@ public class RemoteObject extends GraphOperator implements RemoteInterface
 			throw e;
 		}
 	}
+
 	
-	private synchronized String startJob(List<List<GraphRequest>> threadJobs, List<GraphRequest> batchList)
+	private synchronized String startJob(List<List<GraphRequest>> threadJobs, List<GraphRequest> batchList, boolean concurrent)
 	{
 		// Spawn threads
 		int results[] = new int[threadJobs.size()];
@@ -79,30 +91,52 @@ public class RemoteObject extends GraphOperator implements RemoteInterface
 			threads.add(th);
 		}
 		
-		// Update original graph with A, D requests only.
-		for(GraphRequest req : batchList){
-			if (req.type == 'Q') continue;
-			
-			if (req.type == 'A') addEdge(graph, req.from, req.to);
-			else if (req.type == 'D') deleteEdge(graph, req.from, req.to);
+		
+		StringBuilder result = new StringBuilder();
+		// If concurrent then main thread runs A,D operations only
+		if (concurrent){
+			// Update original graph with A, D requests only.
+			for(GraphRequest req : batchList){
+				if (req.type == 'Q') continue;
+				
+				if (req.type == 'A') addEdge(graph, req.from, req.to);
+				else if (req.type == 'D') deleteEdge(graph, req.from, req.to);
+			}
+		}
+		else{ //Otherwise it runs all operations
+			for(GraphRequest req : batchList){
+				switch(req.type){
+					case 'Q':
+					int res = findPath(graph, req.from, req.to);
+					result.append(res);
+					result.append('\n');
+					break;
+					
+					case 'A':
+					addEdge(graph, req.from, req.to);
+					break;
+					
+					case 'D':
+					deleteEdge(graph, req.from, req.to);
+					break;
+				}
+			}
 		}
 		
 		// Wait for all threads to finish.
-		StringBuilder result = new StringBuilder();
 		try{
 			for(int i=0; i<threads.size(); i++){
 				threads.get(i).join();
-				result.append(Integer.toString(results[i]));
+				result.append(results[i]);
 				result.append('\n');
 			}
-			if (result.length() != 0) result.deleteCharAt(result.length()-1);
 			
 		} catch (InterruptedException e){
 			System.err.println("Error while waiting for job thread:");
 			System.err.println(e.toString());
 		}
 		
-		// Whatever else we need to do now. Logs??
+		if (result.length() != 0) result.deleteCharAt(result.length()-1);
 		return result.toString();
 	}
 

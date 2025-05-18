@@ -2,6 +2,7 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -17,11 +18,17 @@ public class Client
 
     public static void main(String[] args)
 	{
-		if (args.length != 1){
-			System.err.println("Usage : java Client <client id>");
+		if (args.length != 3){
+			System.err.println("Usage : java Client <client id> <true -> concurrent. false -> sequential> <true -> random batches. false -> ask for batches>");
+
 			return;
 		}
 		clientId = Integer.parseInt(args[0]);
+		boolean use_concurrent = Boolean.parseBoolean(args[1]);
+		boolean random_batches = Boolean.parseBoolean(args[2]);
+		
+		
+
 		setupLogger();
 		try{
 			Registry registry = LocateRegistry.getRegistry();
@@ -37,13 +44,15 @@ public class Client
 					completeBatch.append(str);
 					completeBatch.append('\n');
 				}
+
 				completeBatch.append('F');
 				long t_before = System.currentTimeMillis();		
 				logger.info("Batch :\n" + completeBatch.toString());
 				try{
-					String result = obj.processBatch(clientId, completeBatch.toString());
-					//System.out.println("Batch sent");
-					
+					String result;
+					if (use_concurrent) result = obj.concurrentProcessBatch(clientId, completeBatch.toString());
+					else result = obj.sequentialProcessBatch(clientId, completeBatch.toString());
+
 					long t_after = System.currentTimeMillis();
 					long response_time = t_after - t_before;
 					
@@ -96,6 +105,23 @@ public class Client
         }
         return batch;
     }
+
+
+	/**
+	 * Reads a batch from standard input.
+	 * @return the batch as a list of operations.
+	 */
+	private static List<String> readBatch(){
+		List<String> batch = new ArrayList<>();
+		System.out.println("Enter batch of operations:");
+		Scanner scn = new Scanner(System.in);
+		while(scn.hasNextLine()){
+			String line = scn.nextLine();
+			batch.add(line);
+			if (line.equals("F")) break;
+		}
+		return batch;
+	}
 
 
 	static Logger setupLogger() {
