@@ -1,5 +1,3 @@
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -16,7 +14,11 @@ public class Server
 {
 	
 	public static void main(String[] args) {
-
+		int reg_port = 1099; // The port from which the rmi registry can be accessed.
+		int obj_port = 0; // The port from which the remote object can be accessed.
+		if (args.length != 0) reg_port = Integer.parseInt(args[0]);
+		if (args.length == 2) obj_port = Integer.parseInt(args[1]);
+		
 		RemoteObject obj = new RemoteObject();
 
 		try{
@@ -44,12 +46,13 @@ public class Server
 		scn.close();
 
 		try{
-			LocateRegistry.createRegistry(1099);
-			UnicastRemoteObject.exportObject(obj, 0);
-
-			Registry registry = LocateRegistry.getRegistry();
+			LocateRegistry.createRegistry(reg_port);
+			obj.logger.info("RMI Registry setup on port " + reg_port);
+			UnicastRemoteObject.exportObject(obj, obj_port);
+			
+			Registry registry = LocateRegistry.getRegistry(reg_port);
 			registry.bind("Graph Server", obj);
-			System.out.println("Server ready");
+			obj.logger.info("Remote Object available at port " + obj_port);
 		}
 		catch (Exception e){
 			System.err.println("Server exception: " + e.toString());
