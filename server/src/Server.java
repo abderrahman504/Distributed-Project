@@ -17,8 +17,6 @@ public class Server
 	public static void main(String[] args) {
 		int reg_port = 1099; // The port from which the rmi registry can be accessed.
 		int obj_port = 0; // The port from which the remote object can be accessed.
-		if (args.length != 0) reg_port = Integer.parseInt(args[0]);
-		if (args.length == 2) obj_port = Integer.parseInt(args[1]);
 		
 		RemoteObject obj = new RemoteObject();
 

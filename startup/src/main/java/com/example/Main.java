@@ -6,13 +6,7 @@ import java.util.*;
 
 public class Main {
 
-    private static String sshUser;
-    private static String sshPassword;
-    private static String serverIP;
-    private static String serverPort;
-    private static String rmiRegistryPort;
-
-    private static List<String> clientIPs;
+	
 
     private static String serverCommand;
     private static List<String> clientCommands;
@@ -44,20 +38,15 @@ public class Main {
             props.load(in);
         }
 		
-		sshUser = props.getProperty("ssh.user");
-        sshPassword = props.getProperty("ssh.password");
-
-        serverIP = props.getProperty("GSP.server");
-        serverPort = props.getProperty("GSP.server.port");
-		rmiRegistryPort = props.getProperty("GSP.rmiregistry.port");
+		
 		int clientCount = Integer.parseInt(props.getProperty("GSP.numberOfNodes"));
 		
         clientCommands = new ArrayList<>(clientCount);
 		clientIPs = new ArrayList<>(clientCount);
-		serverCommand = "java -jar Server.jar " + rmiRegistryPort + " " + serverPort;
+		serverCommand = "java -jar Server.jar";
 		for(int i=0; i<clientCount; i++){
 			// clientIPs.add(props.getProperty("GSP.node"+i));
-			String cmd = String.format("java -jar Client.jar %d %s %d false -random 20 50 0.7 5000", i, serverIP, Integer.parseInt(rmiRegistryPort));
+			String cmd = String.format("java -jar Client.jar %d false -random 20 50 0.7 5000", i);
 			clientCommands.add(cmd);
 		}
     }

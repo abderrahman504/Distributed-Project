@@ -18,36 +18,32 @@ public class Client
 
     public static void main(String[] args)
 	{
-		String usage = "Usage : java Client <client id> <server ip> <registry port> <Use concurrent> <Option>\n" + 
+		String usage = "Usage : java Client <client id> <Use concurrent> <Option>\n" + 
 		"Client id | A unique integer id for each client.\n" +
-		"Server IP | The IP address of the server.\n" +
-		"Registry port | The port from which the rmi registry can be accessed on the server.\n" +
 		"Use concurrent | Set to true to use concurrent method, and to false to use sequential method.\n" + 
 		"Option | {-read} for reading the batch from standard input. {-random <graph size> <batch size> <write ratio> <sleep (ms)>} to generate random batches. ";
-		if (args.length != 5 && args.length != 9){
+		if (args.length != 3 && args.length != 7){
 			System.err.println(usage);
 			return;
 		}
 
 		clientId = Integer.parseInt(args[0]);
-		String server_ip = args[1];
-		int reg_port = Integer.parseInt(args[2]);
-		boolean use_concurrent = Boolean.parseBoolean(args[3]);
+		boolean use_concurrent = Boolean.parseBoolean(args[2]);
 		boolean random_batches = false;
 		int graph_size = 0, batch_size = 0;
 		double write_ratio = 0;
 		int sleep_time = 0;
 		
 		// Reading the third argument
-		if(args[4].equals("-read") && args.length == 5){
+		if(args[2].equals("-read") && args.length == 3){
 			random_batches = false;
 		}
-		else if (args[4].equals("-random") && args.length == 9){
+		else if (args[2].equals("-random") && args.length == 7){
 			random_batches = true;
-			graph_size = Integer.parseInt(args[5]);
-			batch_size = Integer.parseInt(args[6]);
-			write_ratio = Double.parseDouble(args[7]);
-			sleep_time = Integer.parseInt(args[8]);
+			graph_size = Integer.parseInt(args[3]);
+			batch_size = Integer.parseInt(args[4]);
+			write_ratio = Double.parseDouble(args[5]);
+			sleep_time = Integer.parseInt(args[6]);
 		}
 		else{
 			System.err.println(usage);
@@ -57,7 +53,7 @@ public class Client
 
 		setupLogger();
 		try{
-			Registry registry = LocateRegistry.getRegistry(server_ip, reg_port);
+			Registry registry = LocateRegistry.getRegistry();
 			System.out.println("Found registry");
 			RemoteInterface obj = (RemoteInterface) registry.lookup("Graph Server");
 			System.out.println("Client ready");
