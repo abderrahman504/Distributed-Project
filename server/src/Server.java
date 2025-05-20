@@ -1,3 +1,4 @@
+import java.io.File;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -27,24 +28,10 @@ public class Server
 			System.err.println("Failed to create logger. Quitting...");
 			return;
 		}
-		// Read the initial graph from standard input and call obj.setGraph().
-		System.out.println("Enter initial graph:");
-		Scanner scn = new Scanner(System.in);
-		Map<Integer, Set<Integer>> graph = new HashMap<>();
-		while(scn.hasNextInt()){
-			int from = scn.nextInt();
-			int to = scn.nextInt();
-			if (!graph.containsKey(from))
-				graph.put(from, new HashSet<Integer>());
-				
-			if (!graph.containsKey(to))
-				graph.put(to, new HashSet<Integer>());
 		
-			graph.get(from).add(to);
-		}
+		Map<Integer, Set<Integer>> graph = readFromFile("initial.txt");
 		obj.setGraph(graph);
-		scn.close();
-
+		
 		try{
 			LocateRegistry.createRegistry(reg_port);
 			obj.logger.info("RMI Registry setup on port " + reg_port);
@@ -67,6 +54,54 @@ public class Server
 		SimpleFormatter formatter = new SimpleFormatter();
 		fh.setFormatter(formatter);
 		return logger;
+	}
+
+
+	private static Map<Integer, Set<Integer>> readFromStdIn()
+	{
+		// Read the initial graph from standard input and call obj.setGraph().
+		System.out.println("Enter initial graph:");
+		Scanner scn = new Scanner(System.in);
+		Map<Integer, Set<Integer>> graph = new HashMap<>();
+		while(scn.hasNextInt()){
+			int from = scn.nextInt();
+			int to = scn.nextInt();
+			if (!graph.containsKey(from))
+			graph.put(from, new HashSet<Integer>());
+				
+			if (!graph.containsKey(to))
+			graph.put(to, new HashSet<Integer>());
+			
+			graph.get(from).add(to);
+		}
+		scn.close();
+		return graph;
+	}
+	
+	private static Map<Integer, Set<Integer>> readFromFile(String path){
+		System.out.println("Reading graph from " + path);
+		Map<Integer, Set<Integer>> graph = new HashMap<>();
+		try{
+			Scanner scn = new Scanner(new File(path));
+			while(scn.hasNextInt()){
+				int from = scn.nextInt();
+				int to = scn.nextInt();
+				if (!graph.containsKey(from))
+				graph.put(from, new HashSet<Integer>());
+					
+				if (!graph.containsKey(to))
+				graph.put(to, new HashSet<Integer>());
+				
+				graph.get(from).add(to);
+			}
+			scn.close();
+			return graph;
+		}
+		catch (Exception e){
+			System.err.println(e.getMessage());
+			return null;
+		}
+
 	}
     
 }
